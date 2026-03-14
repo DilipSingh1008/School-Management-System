@@ -3,7 +3,7 @@ const { default: Enquiry } = require("../models/enquiry");
 
 exports.createEnquiry = async (req, res) => {
   try {
-    const { name, email, mobile, message } = req.body;
+    const { name, email, mobile, message, subject } = req.body;
 
     console.log(req.body);
 
@@ -27,6 +27,8 @@ exports.createEnquiry = async (req, res) => {
     const enquiry = await Enquiry.create({
       client: clientData._id,
       message,
+      subject,
+      mobile,
     });
 
     res.status(201).json({

@@ -12,12 +12,16 @@ const enquirySchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Service",
     },
+    mobile: {
+      type: String,
+    },
 
     message: {
       type: String,
       required: true,
       trim: true,
     },
+    subject: String,
 
     enquiryDate: {
       type: Date,

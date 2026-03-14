@@ -1,4 +1,8 @@
 import React from "react";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 export default function Admissions() {
   const steps = [
@@ -24,9 +28,35 @@ export default function Admissions() {
     },
   ];
 
+  const initialValues = {
+    name: "",
+    mobile: "",
+    email: "",
+    grade: "",
+    message: "",
+  };
+
+  const validationSchema = Yup.object({
+    name: Yup.string().required("Parent Name is required"),
+    mobile: Yup.string().required("Contact Number is required"),
+    email: Yup.string().email("Invalid email").required("Email is required"),
+    grade: Yup.string().required("Grade is required"),
+  });
+
+  const handleSubmit = async (values, { resetForm }) => {
+    try {
+      await axios.post("http://localhost:5000/api/enquiry", values);
+      toast.success("Admissions submitted successfully!");
+      resetForm();
+    } catch (err) {
+      console.error(err);
+      toast.error("Something went wrong, please try again.");
+    }
+  };
+
   return (
     <div className="bg-surface min-h-screen">
-      {/* 1. Optimized Header */}
+      {/* Header */}
       <section className="bg-primary pt-32 pb-16 px-6 text-center text-white relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full opacity-5 pointer-events-none">
           <div className="absolute top-10 left-10 w-32 h-32 bg-secondary rounded-full blur-3xl"></div>
@@ -43,16 +73,15 @@ export default function Admissions() {
           </h1>
           <p className="text-blue-100/70 text-base md:text-lg leading-relaxed">
             Join a community that nurtures curiosity and builds character. Your
-            child's future begins with a single step today.
+            child's future begins today.
           </p>
         </div>
       </section>
 
-      {/* 2. Main Grid - Managed Layout */}
+      {/* Main Grid */}
       <div className="max-w-7xl mx-auto px-6 py-12 grid lg:grid-cols-12 gap-10">
-        {/* Left Side: Information (Col-span 7) */}
+        {/* Left: Steps & Checklist */}
         <div className="lg:col-span-7 space-y-10">
-          {/* Admission Process - Compact Timeline */}
           <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
             <h2 className="text-2xl font-bold text-primary mb-8 flex items-center gap-3">
               <span className="w-10 h-10 bg-primary text-secondary rounded-xl flex items-center justify-center font-black">
@@ -60,7 +89,6 @@ export default function Admissions() {
               </span>
               Registration Steps
             </h2>
-
             <div className="grid sm:grid-cols-2 gap-4">
               {steps.map((step, i) => (
                 <div
@@ -79,10 +107,9 @@ export default function Admissions() {
             </div>
           </div>
 
-          {/* Checklist - Clean Layout */}
           <div className="bg-slate-900 text-white p-8 rounded-[2rem] shadow-xl relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-10 -mt-10"></div>
-            <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
+            <h3 className="text-2xl font-bold mb-6 flex items-center gap-2 text-white">
               <span className="text-secondary">📋</span> Required Documents
             </h3>
             <div className="grid sm:grid-cols-2 gap-y-4 gap-x-8">
@@ -108,7 +135,7 @@ export default function Admissions() {
           </div>
         </div>
 
-        {/* 3. Right Side: Sticky Inquiry Form (Col-span 5) */}
+        {/* Right: Admissions Form */}
         <div className="lg:col-span-5 relative">
           <div className="bg-white p-8 rounded-[2.5rem] shadow-2xl border border-slate-100 sticky top-28">
             <div className="mb-6">
@@ -120,58 +147,119 @@ export default function Admissions() {
               </p>
             </div>
 
-            <form className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
+            <Formik
+              initialValues={initialValues}
+              validationSchema={validationSchema}
+              onSubmit={handleSubmit}
+            >
+              <Form className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase text-slate-400 ml-1">
+                      Parent Name
+                    </label>
+                    <Field
+                      name="name"
+                      type="text"
+                      placeholder="Full Name"
+                      className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-2 focus:ring-secondary outline-none text-sm transition-all"
+                    />
+                    <ErrorMessage
+                      name="name"
+                      component="div"
+                      className="text-red-500 text-xs"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase text-slate-400 ml-1">
+                      Contact No.
+                    </label>
+                    <Field
+                      name="mobile"
+                      type="tel"
+                      placeholder="+91"
+                      className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-2 focus:ring-secondary outline-none text-sm transition-all"
+                    />
+                    <ErrorMessage
+                      name="mobile"
+                      component="div"
+                      className="text-red-500 text-xs"
+                    />
+                  </div>
+                </div>
+
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold uppercase text-slate-400 ml-1">
-                    Parent Name
+                    Email Address
                   </label>
-                  <input
-                    type="text"
-                    placeholder="Full Name"
+                  <Field
+                    name="email"
+                    type="email"
+                    placeholder="example@mail.com"
                     className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-2 focus:ring-secondary outline-none text-sm transition-all"
                   />
+                  <ErrorMessage
+                    name="email"
+                    component="div"
+                    className="text-red-500 text-xs"
+                  />
                 </div>
+
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold uppercase text-slate-400 ml-1">
-                    Contact No.
+                    Select Grade
                   </label>
-                  <input
-                    type="tel"
-                    placeholder="+91"
-                    className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-2 focus:ring-secondary outline-none text-sm transition-all"
+                  <Field
+                    as="select"
+                    name="grade"
+                    className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-2 focus:ring-secondary outline-none text-sm cursor-pointer transition-all"
+                  >
+                    <option value="">Select Grade</option>
+                    <option value="Primary (Grade 1-5)">
+                      Primary (Grade 1-5)
+                    </option>
+                    <option value="Middle (Grade 6-8)">
+                      Middle (Grade 6-8)
+                    </option>
+                    <option value="Senior (Grade 9-12)">
+                      Senior (Grade 9-12)
+                    </option>
+                  </Field>
+                  <ErrorMessage
+                    name="grade"
+                    component="div"
+                    className="text-red-500 text-xs"
                   />
                 </div>
-              </div>
 
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase text-slate-400 ml-1">
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  placeholder="example@mail.com"
-                  className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-2 focus:ring-secondary outline-none text-sm transition-all"
-                />
-              </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase text-slate-400 ml-1">
+                    Message
+                  </label>
+                  <Field
+                    as="textarea"
+                    name="message"
+                    placeholder="Your message..."
+                    rows="3"
+                    className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-2 focus:ring-secondary outline-none text-sm transition-all resize-none"
+                  />
+                  <ErrorMessage
+                    name="message"
+                    component="div"
+                    className="text-red-500 text-xs"
+                  />
+                </div>
 
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase text-slate-400 ml-1">
-                  Select Grade
-                </label>
-                <select className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-2 focus:ring-secondary outline-none text-sm appearance-none transition-all cursor-pointer">
-                  <option>Primary (Grade 1-5)</option>
-                  <option>Middle (Grade 6-8)</option>
-                  <option>Senior (Grade 9-12)</option>
-                </select>
-              </div>
-
-              <div className="pt-2">
-                <button className="w-full bg-primary text-white hover:bg-accent font-bold py-4 rounded-xl shadow-lg transition-all active:scale-95">
-                  Request Prospectus
-                </button>
-              </div>
-            </form>
+                <div className="pt-2">
+                  <button
+                    type="submit"
+                    className="w-full bg-primary text-white hover:bg-accent font-bold py-4 rounded-xl shadow-lg transition-all active:scale-95"
+                  >
+                    Request Prospectus
+                  </button>
+                </div>
+              </Form>
+            </Formik>
 
             <div className="mt-6 flex items-center gap-4 p-4 bg-blue-50 rounded-2xl">
               <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm">

@@ -5,7 +5,7 @@ exports.getCategories = async (req, res) => {
   try {
     const {
       page = 1,
-      limit = 5,
+      limit = 20,
       search = "",
       sortBy = "createdAt",
       order = "desc",
